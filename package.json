@@ -1,6 +1,6 @@
 {
   "name": "nfe-signer",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Implementação em Node para assinatura de notas fiscais eletrônicas através do xades-epes usando certificados p12",
   "main": "index.js",
   "scripts": {
