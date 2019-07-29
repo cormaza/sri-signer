@@ -1,35 +1,33 @@
-# haciendacostarica-signer
-> A Node.js implementation to sign with XADES-EPES the Electronic Bill Hacienda Costa Rica using the .p12 file and password.
+# nfe-signer
+> Implementação em Node-JS para a assinatura digital de notas fiscais eletrônicas usando certificados digitais protegidos por password.
 
-## Credits
+## Créditos
 https://github.com/PeculiarVentures/xadesjs/issues/54
-and
-Andrés Castillo @aazcast from gravity.cr
+Andrés Castillo @aazcast da gravity.cr
 
-## Install
+## Instalação
 ```sh
-$ npm i haciendacostarica-signer --save
+$ npm i nfe-signer --save
 ```
 
-## EXAMPLE OF USE ASYNC/AWAIT
+## Exemplo de uso
 ```js
-//Definir la dependencia.
-const Signer = require('haciendacostarica-signer');
+// Define its dependency
+const Signer = require('nfe-signer');
 
 const nameController = async (req, res) => {
   try {
-    //Enviar a .sign el XML en string, la llave criptografica (.p12) en BASE64, y el pass en string.
-    //Se retornara el XML ya firmado en BASE64.
+    // Sends to Signer.sign the XML as string, the base64 cert and the cert password;
+    // It returns the signed XML
     const xml = await Signer.sign(xmlString, llavecriptografica, PassLlaveCriptografica);
 
-    //Tambien está el function verifySignature el cuál verifica que la llave criptografica y el pass de la misma sean correctas, además nos retornara cuando expira la misma.
-    //Si es correcto retorna true, caso contrario el error.
-    //Ej de uso: antes de guardar los datos del contribuyente y usar el Sign se puede verificar con antelación la llave. Si es true se guarda.
+    // You can also verify the signature by using Signer.verifySignature;
     const verify = await Signer.verifySignature(llavecriptografica, PassLlaveCriptografica);
-    //la function verify nos retorna lo siguiente si es correcta y no ha expirado:
-    { isValid: true, expiresOn: 2021-06-20T01:29:49.000Z }
+    // The method returns an isValid boolean in case the cert is valid.
+    { isValid: true, expiresOn: ... }
 
   } catch (err) {
+    console.log(err);
     res.send(err);
   }
 }
@@ -40,13 +38,8 @@ const nameController = async (req, res) => {
 ## Changelog
 [CHANGELOG.md](CHANGELOG.md)
 
-## Donations
-https://paypal.me/aazcast
-
 ## License
 The MIT License (MIT)
-
-Copyright (c) 2019 Andres Castillo (andres@gravity.cr)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

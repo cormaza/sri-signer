@@ -1,9 +1,9 @@
 'use strict'
 
 /**
- * Signer NODEJS Ministerio de Hacienda XADES-EPES
- * Made by Andres Castillo @aazcast
- * Thanks to: https://github.com/PeculiarVentures/xadesjs/issues/54
+ * Signer NodeJS for NF-e from Brazil
+ * Adapted by Alexandre Moraes @alcmoraes
+ * Based on Andres Castillo @aazcast solution
  */
 
 /**
@@ -13,13 +13,13 @@ const forge = require('node-forge');
 const { Crypto } = require('@peculiar/webcrypto');
 const xades = require('xadesjs');
 const xmlCore = require('xml-core');
-const {Convert} = require('pvtsutils');
+const { Convert } = require('pvtsutils');
 const moment = require('moment-timezone');
 
 // Preset
 const crypto = new Crypto();
 xades.Application.setEngine("OpenSSL", crypto);
-moment.tz.setDefault("America/Costa_Rica");
+moment.tz.setDefault("America/Sao_Paulo");
 
 /**
  * Main function to sign one XML
@@ -34,6 +34,7 @@ exports.sign = async (xmlString, key, pass) => {
     const xmlSigned = await signXML(xmlString, data.cert64, data.pkey64, data.pbkey64);
     return xmlSigned;
   } catch (err) {
+    console.log(err);
     throw err;
   }
 }
@@ -48,7 +49,7 @@ exports.verifySignature = async (key, pass) => {
     const expiresOn = certBags[0].cert.validity.notAfter;
     const date = moment().format();
     let timediff = moment(expiresOn).diff(date, 'seconds');
-    if (timediff < 100000 ) {
+    if (timediff < 100000) {
       //cert is expired or expires in one day
       throw err;
     }
@@ -57,7 +58,8 @@ exports.verifySignature = async (key, pass) => {
       expiresOn
     };
   } catch (err) {
-    throw new Error('Error en la llave criptográfica y clave de la misma. Verificar la información en ATV hacienda https://www.hacienda.go.cr/ATV/Login.aspx');
+    console.log(err);
+    throw new Error('Seu certificado não atinge os requisitos mínimos para a assinatura digital.');
   }
 }
 
@@ -67,31 +69,30 @@ exports.verifySignature = async (key, pass) => {
  * @param {string} key P12 in base64
  * @param {string} pass Passphrase
 */
-
 const separateP12 = async (key, pass) => {
   try {
     const p12base64 = key;
     const passphrase = pass;
-    //We separate the p12
+    // We separate the p12
     const asn = forge.asn1.fromDer(forge.util.decode64(p12base64));
     const p12 = forge.pkcs12.pkcs12FromAsn1(asn, true, passphrase);
-    //We ket the ley data
+    // We get the key data
     const keyData = p12.getBags({ bagType: forge.pki.oids.pkcs8ShroudedKeyBag })[forge.pki.oids.pkcs8ShroudedKeyBag].concat(p12.getBags({ bagType: forge.pki.oids.keyBag })[forge.pki.oids.keyBag]);
-    //get the private key
+    // Get the private key
     const rsaPrivateKey = forge.pki.privateKeyToAsn1(keyData[0].key);
     const privateKeyInfo = forge.pki.wrapRsaPrivateKey(rsaPrivateKey);
     const pemPrivate = forge.pki.privateKeyInfoToPem(privateKeyInfo);
     const pkey64 = await pemToBase64(pemPrivate);
-    //get the cert
+    // Get the cert
     const certBags = p12.getBags({ bagType: forge.pki.oids.certBag })[forge.pki.oids.certBag];
     const finalCert = forge.pki.certificateToPem(certBags[0].cert);
     const cert64 = await pemToBase64(finalCert)
-    //get the public key from private key
+    // Get the public key from private key
     const preprivateKey = forge.pki.privateKeyFromPem(pemPrivate);
-    const prepublicKey  = forge.pki.setRsaPublicKey(preprivateKey.n, preprivateKey.e);
+    const prepublicKey = forge.pki.setRsaPublicKey(preprivateKey.n, preprivateKey.e);
     const publicKey = forge.pki.publicKeyToPem(prepublicKey);
     const pbkey64 = await pemToBase64(publicKey)
-    //return the data
+    // Return the data
     const data = {
       pkey64,
       cert64,
@@ -99,7 +100,8 @@ const separateP12 = async (key, pass) => {
     };
     return data;
   } catch (err) {
-    throw new Error('Error en la llave criptográfica y clave de la misma. Verificar la información en ATV hacienda https://www.hacienda.go.cr/ATV/Login.aspx');
+    console.log(err);
+    throw new Error('Seu certificado não atinge os requisitos mínimos para a assinatura digital.');
   }
 }
 
@@ -120,7 +122,7 @@ const signXML = async (xmlString, ct, pk, pbk) => {
       name: "RSASSA-PKCS1-v1_5",
       hash: hash,
       publicExponent: new Uint8Array([1, 0, 1]),
-      modulusLength: 2048,
+      modulusLength: 1024,
     }
     // Read cert
     const certDer = Convert.FromBase64(ct);
@@ -137,7 +139,10 @@ const signXML = async (xmlString, ct, pk, pbk) => {
     const xadesXml = new xades.SignedXml();
     const x509 = ct;
     const referenceId = uuidv4;
-    //Create signature
+
+    xadesXml.XmlSignature.SignedInfo.CanonicalizationMethod.Algorithm = "http://www.w3.org/2001/10/xml-exc-c14n#WithComments"
+
+    // Create signature
     const signature = await xadesXml.Sign(   // Signing document
       alg,                                    // algorithm
       key,                                    // key
@@ -147,27 +152,27 @@ const signXML = async (xmlString, ct, pk, pbk) => {
         references: [
           {
             id: "Reference-" + referenceId,
+            type: "http://uri.etsi.org/01903#SignedProperties",
             uri: "",
-            hash: hash,
+            hash,
             transforms: [
-              // "c14n",
-              "enveloped",
+              "exc-c14n-com",
             ],
           }
         ],
-        signerRole: {
-          claimed: ["ObligadoTributario"]
-        },
         x509: [x509],
         signingCertificate: x509,
         policy: {
-          hash: "SHA-1",
+          hash,
+          qualifiers: [
+            "http://politicas.icpbrasil.gov.br/PA_AD_RB_v2_3.xml"
+          ],
           identifier: {
-            qualifier: "OIDAsURI",
-            value: "https://tribunet.hacienda.go.cr/docs/esquemas/2016/v4/Resolucion%20Comprobantes%20Electronicos%20%20DGT-R-48-2016.pdf",
-          }
+            qualifier: "OIDAsURN",
+            value: "urn:oid:2.16.76.1.7.1.6.2.3",
+          },
         },
-    });
+      });
 
     // append signature
     xml.documentElement.appendChild(signature.GetXml());
@@ -178,23 +183,24 @@ const signXML = async (xmlString, ct, pk, pbk) => {
     return signedXml;
 
   } catch (err) {
+    console.log(err)
     throw err;
   }
 }
 
-//Convert pem to base64
+// Convert pem to base64
 const pemToBase64 = (pem) => {
   return new Promise(function (resolve, reject) {
     const pemfinal = pem
-        // remove BEGIN/END
-        .replace(/-----(BEGIN|END)[\w\d\s]+-----/g, "")
-        // remove \r, \n
-        .replace(/[\r\n]/g, "");
+      // remove BEGIN/END
+      .replace(/-----(BEGIN|END)[\w\d\s]+-----/g, "")
+      // remove \r, \n
+      .replace(/[\r\n]/g, "");
     resolve(pemfinal);
   });
 }
 
-//Generate ID for reference id
+// Generate ID for reference id
 const generateId = () => {
   return (`${1e7}-${1e3}-${4e3}-${8e3}-${1e11}`).replace(/[018]/g, (c) =>
     (c ^ (crypto.getRandomValues(new Uint8Array(1)))[0] & 15 >> c / 4).toString(16)

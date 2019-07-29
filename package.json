@@ -1,27 +1,27 @@
 {
-  "name": "haciendacostarica-signer",
+  "name": "nfe-signer",
   "version": "1.0.2",
-  "description": "Sign bill for Hacienda Costa Rica with xades-epes using p12",
+  "description": "Implementação em Node para assinatura de notas fiscais eletrônicas através do xades-epes usando certificados p12",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Andres Castillo <andres@gravity.cr> (https://gravity.cr)",
+  "author": "Alexandre Moraes <alcmoraes89@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@peculiar/webcrypto": "^1.0.12",
-    "moment-timezone": "^0.5.25",
-    "node-forge": "^0.8.4",
-    "pvtsutils": "^1.0.4",
-    "xadesjs": "^2.0.15",
-    "xml-core": "^1.0.15"
+    "@peculiar/webcrypto": "1.0.12",
+    "moment-timezone": "0.5.26",
+    "node-forge": "0.8.5",
+    "pvtsutils": "1.0.4",
+    "xadesjs": "2.0.15",
+    "xml-core": "1.0.15"
   },
   "bugs": {
-    "url": "https://github.com/aazcast/haciendacostarica-signer/issues"
+    "url": "https://github.com/alcmoraes/nfe-signer/issues"
   },
-  "homepage": "https://github.com/aazcast/haciendacostarica-signer#readme",
+  "homepage": "https://github.com/alcmoraes/nfe-signer#readme",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com:aazcast/haciendacostarica-signer.git"
+    "url": "git+ssh://git@github.com:alcmoraes/nfe-signer.git"
   }
 }
