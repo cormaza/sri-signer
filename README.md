@@ -2,8 +2,8 @@
 > Implementação em Node-JS para a assinatura digital de notas fiscais eletrônicas usando certificados digitais protegidos por password.
 
 ## Créditos
-https://github.com/PeculiarVentures/xadesjs/issues/54
-Andrés Castillo @aazcast da gravity.cr
+- https://github.com/PeculiarVentures/xadesjs/issues/54;
+- Andrés Castillo @aazcast da gravity.cr;
 
 ## Instalação
 ```sh
@@ -19,10 +19,10 @@ const nameController = async (req, res) => {
   try {
     // Sends to Signer.sign the XML as string, the base64 cert and the cert password;
     // It returns the signed XML
-    const xml = await Signer.sign(xmlString, llavecriptografica, PassLlaveCriptografica);
+    const xml = await Signer.sign(xmlString, certAsBase64, certPassword);
 
     // You can also verify the signature by using Signer.verifySignature;
-    const verify = await Signer.verifySignature(llavecriptografica, PassLlaveCriptografica);
+    const verify = await Signer.verifySignature(certAsBase64, certPassword);
     // The method returns an isValid boolean in case the cert is valid.
     { isValid: true, expiresOn: ... }
 
