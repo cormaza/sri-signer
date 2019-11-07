@@ -1,19 +1,20 @@
-# nfe-signer
-> Implementação em Node-JS para a assinatura digital de notas fiscais eletrônicas usando certificados digitais protegidos por password.
+# sri-signer
+> Implementacion de Node-JS para firmar electronicamente documentos del SRI
 
 ## Créditos
 - https://github.com/PeculiarVentures/xadesjs/issues/54;
 - Andrés Castillo @aazcast da gravity.cr;
+- Christopher Ormaza chris.ormaza@gmail.com
 
-## Instalação
+## Instalaçion
 ```sh
-$ npm i nfe-signer --save
+$ npm i sri-signer --save
 ```
 
 ## Exemplo de uso
 ```js
 // Define its dependency
-const Signer = require('nfe-signer');
+const Signer = require('sri-signer');
 
 const nameController = async (req, res) => {
   try {

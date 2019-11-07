@@ -1,12 +1,12 @@
 {
-  "name": "nfe-signer",
-  "version": "1.0.3",
-  "description": "Implementação em Node para assinatura de notas fiscais eletrônicas através do xades-epes usando certificados p12",
+  "name": "sri-signer",
+  "version": "1.0.0",
+  "description": "Implementacion de Node-JS para firmar electronicamente documentos del SRI",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Alexandre Moraes <alcmoraes89@gmail.com>",
+  "author": "Christopher Ormaza <chris.ormaza@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "@peculiar/webcrypto": "1.0.12",
@@ -17,11 +17,16 @@
     "xml-core": "1.0.15"
   },
   "bugs": {
-    "url": "https://github.com/alcmoraes/nfe-signer/issues"
+    "url": "https://github.com/cormaza/sri-signer/issues"
   },
-  "homepage": "https://github.com/alcmoraes/nfe-signer#readme",
+  "homepage": "https://github.com/cormaza/sri-signer#readme",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com:alcmoraes/nfe-signer.git"
-  }
+    "url": "git+ssh://git@github.com/cormaza/sri-signer.git"
+  },
+  "keywords": [
+    "Xades",
+    "Bes",
+    "SRI"
+  ]
 }
