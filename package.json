@@ -1,5 +1,5 @@
 {
-  "name": "sri-signer",
+  "name": "@cormaza/sri-signer",
   "version": "1.0.0",
   "description": "Implementacion de Node-JS para firmar electronicamente documentos del SRI",
   "main": "index.js",
