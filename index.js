@@ -117,12 +117,12 @@ const separateP12 = async (key, pass) => {
 const signXML = async (xmlString, ct, pk, pbk) => {
   try {
     const uuidv4 = generateId();
-    const hash = "SHA-256";
+    const hash = "SHA-1";
     const alg = {
       name: "RSASSA-PKCS1-v1_5",
       hash: hash,
       publicExponent: new Uint8Array([1, 0, 1]),
-      modulusLength: 1024,
+      modulusLength: 2048,
     }
     // Read cert
     const certDer = Convert.FromBase64(ct);
@@ -140,7 +140,7 @@ const signXML = async (xmlString, ct, pk, pbk) => {
     const x509 = ct;
     const referenceId = uuidv4;
 
-    xadesXml.XmlSignature.SignedInfo.CanonicalizationMethod.Algorithm = "http://www.w3.org/2001/10/xml-exc-c14n#WithComments"
+    xadesXml.XmlSignature.SignedInfo.CanonicalizationMethod.Algorithm = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
 
     // Create signature
     const signature = await xadesXml.Sign(   // Signing document
@@ -151,27 +151,18 @@ const signXML = async (xmlString, ct, pk, pbk) => {
         keyValue: publicKey,
         references: [
           {
-            id: "Reference-" + referenceId,
             type: "http://uri.etsi.org/01903#SignedProperties",
-            uri: "",
             hash,
-            transforms: [
-              "exc-c14n-com",
-            ],
+            transforms: [],
+          },
+          {
+            hash,
+            uri: '#comprobante',
+            transforms: ['enveloped']
           }
         ],
         x509: [x509],
         signingCertificate: x509,
-        policy: {
-          hash,
-          qualifiers: [
-            "http://politicas.icpbrasil.gov.br/PA_AD_RB_v2_3.xml"
-          ],
-          identifier: {
-            qualifier: "OIDAsURN",
-            value: "urn:oid:2.16.76.1.7.1.6.2.3",
-          },
-        },
       });
 
     // append signature
